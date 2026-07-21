@@ -1,42 +1,93 @@
-# GymGenius AI 🏋️‍♂️
+<h1 align="center">GymGenius AI</h1>
 
-**Your Personal AI Fitness Trainer!** A production-ready AI Fitness web application built with Python, Streamlit, and MediaPipe. 
+<p align="center">
+<img src="screenshots/workout_dashboard.png" width="900">
+</p>
+
+<p align="center">
+  <b>GymGenius AI – AI Fitness Coach</b><br>
+  <i>Your intelligent AI Fitness Coach for real-time form correction, workout tracking, and performance analytics.</i>
+</p>
+
+<hr>
 
 ## ✨ Features
-- **Real-Time Workout Mode:** Live pose detection and automatic rep counting via your Webcam.
-- **VIP Premium UI:** A stunning Luxury Gold & Matte Black aesthetic with sleek stat cards.
-- **Spotify Music Player:** Built-in workout playlist integration to keep you pumped during sets!
-- **Form Analysis:** Intelligent feedback on your exercise posture to prevent injuries.
-- **Progress Tracking:** Interactive dashboards and workout reports (PDF/CSV export).
-- **Secure Auth:** Login/Signup system with encrypted passwords using bcrypt.
+- **Real-Time Pose Tracking**: Leverages advanced computer vision (MediaPipe) to analyze your form in 3D as you work out.
+- **Form Correction & Feedback**: Provides instant, actionable visual feedback to prevent injuries and maximize muscle engagement.
+- **Personalized Analytics**: Track your reps, sets, and overall performance over time through an intuitive, data-rich dashboard.
+- **Interactive & Modern UI**: A sleek, premium dark-mode aesthetic with neon accents that keeps you motivated and engaged.
+- **Secure User Profiles**: Keep your workout data safe with our robust authentication system.
 
 ## 🛠️ Tech Stack
-- **Frontend:** Streamlit, Custom HTML/CSS
-- **Computer Vision:** MediaPipe, OpenCV
-- **Video Streaming:** Streamlit-WebRTC
-- **Data & Charts:** Pandas, Plotly
-- **Database:** SQLite
+- **Frontend**: HTML5, Vanilla CSS, JavaScript
+- **Backend**: Python, Flask
+- **AI/ML**: Google MediaPipe, OpenCV
+- **Database**: SQLite
 
-## 🚀 How to Run Locally
+## 📸 Screenshots
+*(Include additional screenshots of your application here)*
 
-1. **Clone the repository:**
+## 🏋️ Supported Exercises (Proper Form Guide)
+
+<p align="center">
+<img src="screenshots/basic_exercises.png" width="900">
+</p>
+
+GymGenius AI currently tracks and provides real-time feedback on 5 core exercises:
+
+### 1. Squat (Legs & Glutes)
+- **Tips**: Feet shoulder-width apart, chest up, and back straight. Push hips back and down. Keep knees behind toes, and engage core and glutes.
+
+### 2. Push-Up (Chest, Shoulders, Triceps)
+- **Tips**: Hands slightly wider than shoulders. Keep your body in a straight line. Lower until chest is near the floor, push back up, and engage core.
+
+### 3. Plank (Core)
+- **Tips**: Elbows under shoulders, body in a straight line. Tighten your core, don't let hips drop, and breathe normally.
+
+### 4. Lunge (Legs & Glutes)
+- **Tips**: Step forward, front knee at 90°. Back knee near the floor. Keep torso upright, and push back to start.
+
+### 5. Jumping Jack (Full Body)
+- **Tips**: Jump and spread arms and legs. Return to the start position. Keep a steady rhythm and land softly.
+
+> **💡 General Fitness Guidelines:**
+> - 🎯 **Warm Up**: 5-10 Minutes
+> - 💧 **Stay Hydrated**: Drink Water
+> - ❤️ **Be Consistent**: 3-5 Times a Week
+> - 📈 **Progress Gradually**: Increase Reps & Intensity
+
+## 🚀 Installation
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/shruti29075/GymGenius-AI.git
    cd GymGenius-AI
    ```
 
-2. **Install dependencies:**
+2. **Set up a virtual environment (recommended)**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run the App:**
+4. **Run the application**
    ```bash
-   streamlit run app.py
+   python app.py
    ```
 
-4. Open your browser and navigate to `http://localhost:8501`.
+## 📖 Usage
+1. Launch the application and open your browser to `http://127.0.0.1:5000`.
+2. Create an account or sign in to your dashboard.
+3. Allow camera access to enable the 3D skeleton pose tracking.
+4. Select your exercise, start your workout, and let GymGenius analyze your form!
 
-5. **output:-** https://drive.google.com/file/d/1tu41oUvE2hChkW73LhxDAzeQn8QTwXTp/view?usp=sharing
----
-*Built to revolutionize and gamify your fitness journey.*
+## 🔮 Future Enhancements
+- **Wearable Integration**: Sync with smartwatches (Apple Watch, Garmin, etc.) for heart rate and calorie tracking.
+- **Gamification**: Earn badges, climb leaderboards, and maintain daily streaks to stay motivated.
+- **Voice Coaching**: Real-time audio cues for pacing and motivation.
+- **Dynamic Workout Plans**: AI-generated routines tailored to your specific goals and progress.
