@@ -37,5 +37,6 @@
 
 4. Open your browser and navigate to `http://localhost:8501`.
 
+5. **output:-** https://drive.google.com/file/d/1tu41oUvE2hChkW73LhxDAzeQn8QTwXTp/view?usp=sharing
 ---
 *Built to revolutionize and gamify your fitness journey.*
