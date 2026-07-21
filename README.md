@@ -1,10 +1,6 @@
 <h1 align="center">GymGenius AI</h1>
 
 <p align="center">
-<img src="screenshots/workout_dashboard.png" width="900">
-</p>
-
-<p align="center">
   <b>GymGenius AI – AI Fitness Coach</b><br>
   <i>Your intelligent AI Fitness Coach for real-time form correction, workout tracking, and performance analytics.</i>
 </p>
