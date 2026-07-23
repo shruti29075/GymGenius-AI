@@ -87,3 +87,5 @@ GymGenius AI currently tracks and provides real-time feedback on 5 core exercise
 - **Gamification**: Earn badges, climb leaderboards, and maintain daily streaks to stay motivated.
 - **Voice Coaching**: Real-time audio cues for pacing and motivation.
 - **Dynamic Workout Plans**: AI-generated routines tailored to your specific goals and progress.
+
+  ## app link- https://gymgenius-ai-ub8ddgrch4bym3cjwhvt9l.streamlit.app/
