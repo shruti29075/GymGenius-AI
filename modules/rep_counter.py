@@ -11,6 +11,7 @@ class RepCounter:
         self.count = 0
         self.direction = 0
         self.stage = None
+        self.sets = 0
         self.is_completed = False
 
     def _increment(self):

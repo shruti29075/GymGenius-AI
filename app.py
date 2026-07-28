@@ -240,7 +240,9 @@ def main_app():
             )
             
             if ctx.video_processor:
-                ctx.video_processor.exercise = exercise
+                if ctx.video_processor.exercise != exercise:
+                    ctx.video_processor.counter.reset()
+                    ctx.video_processor.exercise = exercise
                 ctx.video_processor.counter.target_reps = target_reps
                 
                 # Simple logic to save workout
