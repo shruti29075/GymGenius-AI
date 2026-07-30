@@ -15,13 +15,11 @@
 - **Secure User Profiles**: Keep your workout data safe with our robust authentication system.
 
 ## 🛠️ Tech Stack
-- **Frontend**: HTML5, Vanilla CSS, JavaScript
-- **Backend**: Python, Flask
+- **Framework**: Streamlit, Streamlit-WebRTC
 - **AI/ML**: Google MediaPipe, OpenCV
 - **Database**: SQLite
 
 ## 📸 Screenshots
-*(Include additional screenshots of your application here)*
 
 ## 🏋️ Supported Exercises (Proper Form Guide)
 
@@ -29,7 +27,7 @@
 <img src="screenshots/basic_exercises.png" width="900">
 </p>
 
-GymGenius AI currently tracks and provides real-time feedback on 5 core exercises:
+GymGenius AI currently tracks and provides real-time feedback on 6 core exercises:
 
 ### 1. Squat (Legs & Glutes)
 - **Tips**: Feet shoulder-width apart, chest up, and back straight. Push hips back and down. Keep knees behind toes, and engage core and glutes.
@@ -46,6 +44,9 @@ GymGenius AI currently tracks and provides real-time feedback on 5 core exercise
 ### 5. Jumping Jack (Full Body)
 - **Tips**: Jump and spread arms and legs. Return to the start position. Keep a steady rhythm and land softly.
 
+### 6. Bicep Curl (Arms)
+- **Tips**: Stand straight with a dumbbell in each hand. Keep elbows close to your torso. Curl the weights while contracting biceps, then lower them back down.
+
 > **💡 General Fitness Guidelines:**
 > - 🎯 **Warm Up**: 5-10 Minutes
 > - 💧 **Stay Hydrated**: Drink Water
@@ -53,6 +54,8 @@ GymGenius AI currently tracks and provides real-time feedback on 5 core exercise
 > - 📈 **Progress Gradually**: Increase Reps & Intensity
 
 ## 🚀 Installation
+
+**Prerequisite**: A functional webcam/camera is required for real-time exercise tracking and pose estimation.
 
 1. **Clone the repository**
    ```bash
@@ -73,11 +76,11 @@ GymGenius AI currently tracks and provides real-time feedback on 5 core exercise
 
 4. **Run the application**
    ```bash
-   python app.py
+   streamlit run app.py
    ```
 
 ## 📖 Usage
-1. Launch the application and open your browser to `http://127.0.0.1:5000`.
+1. Launch the application and open your browser to `http://127.0.0.1:8501`.
 2. Create an account or sign in to your dashboard.
 3. Allow camera access to enable the 3D skeleton pose tracking.
 4. Select your exercise, start your workout, and let GymGenius analyze your form!
