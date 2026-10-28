@@ -821,7 +821,7 @@ def main_app():
         st.markdown("<h1>Live Workout Trainer & Video Analyzer</h1>", unsafe_allow_html=True)
         st.markdown('<p class="page-subtitle">Real-time computer vision pose analysis, voice coaching, and offline gym video evaluation.</p>', unsafe_allow_html=True)
         
-mode = st.radio("Workout Input Mode", ["📹 Live Camera Trainer", "📁 Analyze Recorded Video (.mp4)"], horizontal=True, label_visibility="collapsed")
+        mode = st.radio("Workout Input Mode", ["📹 Live Camera Trainer", "📁 Analyze Recorded Video (.mp4)"], horizontal=True, label_visibility="collapsed")
         
         if mode == "📹 Live Camera Trainer":
             col1, col2 = st.columns([1, 2])
