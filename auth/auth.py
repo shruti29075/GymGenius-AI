@@ -11,7 +11,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
     """Verifies a password against a hash."""
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-def register_user(username, password, age=None, gender=None, weight=None, height=None, fitness_goal=None):
+def register_user(username, password, email=None, age=None, gender=None, weight=None, height=None, fitness_goal=None):
     """Registers a new user in the database."""
     conn = get_connection()
     cursor = conn.cursor()
@@ -26,12 +26,32 @@ def register_user(username, password, age=None, gender=None, weight=None, height
     
     try:
         cursor.execute('''
-            INSERT INTO users (username, password_hash, age, gender, weight, height, fitness_goal)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (username, hashed_pwd, age, gender, weight, height, fitness_goal))
+            INSERT INTO users (username, password_hash, email, age, gender, weight, height, fitness_goal)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (username, hashed_pwd, email, age, gender, weight, height, fitness_goal))
         conn.commit()
         conn.close()
         return True, "User registered successfully."
+    except Exception as e:
+        conn.close()
+        return False, str(e)
+
+def reset_password(username, new_password):
+    """Resets the password for a given username."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        return False, "User not found."
+    
+    hashed_pwd = hash_password(new_password)
+    try:
+        cursor.execute("UPDATE users SET password_hash = ? WHERE username = ?", (hashed_pwd, username))
+        conn.commit()
+        conn.close()
+        return True, "Password reset successfully."
     except Exception as e:
         conn.close()
         return False, str(e)

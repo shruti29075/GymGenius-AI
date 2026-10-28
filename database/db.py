@@ -21,6 +21,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            email TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             age INTEGER,
             gender TEXT,
@@ -29,6 +30,10 @@ def init_db():
             fitness_goal TEXT
         )
     ''')
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN email TEXT")
+    except Exception:
+        pass
     
     # Create Workouts Table
     cursor.execute('''

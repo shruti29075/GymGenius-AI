@@ -37,8 +37,20 @@ def plot_calories_over_time(df):
         
     daily_calories = df.groupby(df['date'].dt.date)['calories'].sum().reset_index()
     fig = px.line(daily_calories, x='date', y='calories', title="Calories Burned Over Time", markers=True)
-    fig.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#FFA500'))
-    fig.update_traces(line_color='#FFA500')
+    fig.update_layout(
+        template="plotly_dark",
+        plot_bgcolor='#131924',
+        paper_bgcolor='#131924',
+        font=dict(color='#e6edf3', family='-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'),
+        title_font=dict(size=16, color='#ffffff'),
+        margin=dict(l=20, r=20, t=50, b=20),
+        xaxis=dict(gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e')),
+        yaxis=dict(gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e'))
+    )
+    fig.update_traces(
+        line=dict(color='#00ff87', width=3),
+        marker=dict(size=8, color='#00ff87', line=dict(width=2, color='#ffffff'))
+    )
     return fig
 
 def plot_exercise_distribution(df):
@@ -48,6 +60,26 @@ def plot_exercise_distribution(df):
         
     exercise_counts = df['exercise'].value_counts().reset_index()
     exercise_counts.columns = ['exercise', 'count']
-    fig = px.pie(exercise_counts, names='exercise', values='count', title="Exercise Distribution", hole=0.4)
-    fig.update_layout(template="plotly_dark", plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
+    palette = ['#00ff87', '#00d2ff', '#7928ca', '#ff0080', '#f5a623', '#0070f3']
+    fig = px.pie(
+        exercise_counts,
+        names='exercise',
+        values='count',
+        title="Exercise Distribution",
+        hole=0.45,
+        color_discrete_sequence=palette
+    )
+    fig.update_layout(
+        template="plotly_dark",
+        plot_bgcolor='#131924',
+        paper_bgcolor='#131924',
+        font=dict(color='#e6edf3', family='-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'),
+        title_font=dict(size=16, color='#ffffff'),
+        margin=dict(l=20, r=20, t=50, b=20),
+        legend=dict(font=dict(color='#c9d1d9'))
+    )
+    fig.update_traces(
+        textfont=dict(color='#ffffff'),
+        marker=dict(line=dict(color='#131924', width=2))
+    )
     return fig

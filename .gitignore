@@ -18,3 +18,7 @@ pose_landmarker_full.task
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Deployment and temporary scratch files
+hf_deploy.py
+scratch/

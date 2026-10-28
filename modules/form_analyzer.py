@@ -24,12 +24,15 @@ class FormAnalyzer:
         coords = []
         for idx in joint_indices:
             # lm_list format: [id, x, y, visibility]
-            coords.append([lm_list[idx][1], lm_list[idx][2]])
+            if idx < len(lm_list):
+                coords.append([lm_list[idx][1], lm_list[idx][2]])
+            else:
+                coords.append([0, 0])
         return coords
         
     def _get_dominant_side_coords(self, lm_list, l_indices, r_indices):
-        l_vis = sum([lm_list[idx][3] for idx in l_indices])
-        r_vis = sum([lm_list[idx][3] for idx in r_indices])
+        l_vis = sum([lm_list[idx][3] for idx in l_indices if idx < len(lm_list)])
+        r_vis = sum([lm_list[idx][3] for idx in r_indices if idx < len(lm_list)])
         
         if l_vis > r_vis:
             return self.get_joint_coords(lm_list, l_indices)
