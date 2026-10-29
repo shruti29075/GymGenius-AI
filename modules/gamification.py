@@ -169,3 +169,89 @@ def get_community_leaderboard() -> list:
         })
     return leaderboard
 
+
+
+def get_next_milestone(df: pd.DataFrame, streak: int, badges: list = None) -> dict:
+    """Finds the next achievable badge and calculates progress towards it."""
+    total_workouts = len(df) if not df.empty else 0
+    total_reps = int(df['reps'].sum()) if not df.empty else 0
+    total_cal = float(df['calories'].sum()) if not df.empty else 0
+    unique_exercises = df['exercise'].nunique() if not df.empty else 0
+    
+    if total_workouts < 1:
+        return {
+            "name": "First Blood",
+            "icon": "🥊",
+            "target": "Complete your first workout session",
+            "current": 0,
+            "max": 1,
+            "pct": 0
+        }
+    if streak < 3:
+        pct = min(100, int((streak / 3) * 100))
+        return {
+            "name": "Consistency King",
+            "icon": "🔥",
+            "target": f"3-Day active streak ({streak}/3 days)",
+            "current": streak,
+            "max": 3,
+            "pct": pct
+        }
+    if total_reps < 100:
+        pct = min(100, int((total_reps / 100) * 100))
+        return {
+            "name": "Centurion",
+            "icon": "💯",
+            "target": f"100 total lifetime reps ({total_reps}/100 reps)",
+            "current": total_reps,
+            "max": 100,
+            "pct": pct
+        }
+    if total_cal < 1000:
+        pct = min(100, int((total_cal / 1000) * 100))
+        return {
+            "name": "Calorie Torcher",
+            "icon": "⚡",
+            "target": f"1,000 active calories burned ({int(total_cal)}/1,000 kcal)",
+            "current": int(total_cal),
+            "max": 1000,
+            "pct": pct
+        }
+    if unique_exercises < 4:
+        pct = min(100, int((unique_exercises / 4) * 100))
+        return {
+            "name": "All-Rounder",
+            "icon": "🌟",
+            "target": f"Train across 4 distinct exercises ({unique_exercises}/4)",
+            "current": unique_exercises,
+            "max": 4,
+            "pct": pct
+        }
+    if total_reps < 500:
+        pct = min(100, int((total_reps / 500) * 100))
+        return {
+            "name": "Volume Monster",
+            "icon": "🦍",
+            "target": f"500 total lifetime reps ({total_reps}/500 reps)",
+            "current": total_reps,
+            "max": 500,
+            "pct": pct
+        }
+    if total_workouts < 10:
+        pct = min(100, int((total_workouts / 10) * 100))
+        return {
+            "name": "Gym Veteran",
+            "icon": "🏆",
+            "target": f"10 completed workout sessions ({total_workouts}/10)",
+            "current": total_workouts,
+            "max": 10,
+            "pct": pct
+        }
+    return {
+        "name": "Apex Champion",
+        "icon": "👑",
+        "target": "All primary trophies conquered! Keep pushing limits.",
+        "current": 100,
+        "max": 100,
+        "pct": 100
+    }

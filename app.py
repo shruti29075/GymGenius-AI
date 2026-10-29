@@ -24,7 +24,9 @@ from modules.pose_detector import PoseDetector
 from modules.form_analyzer import FormAnalyzer
 from modules.rep_counter import RepCounter
 from modules.analytics import fetch_user_workouts, plot_calories_over_time, plot_exercise_distribution, save_workout
-from modules.gamification import calculate_streak, calculate_athlete_level, get_user_badges, get_community_leaderboard
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+from modules.gamification import calculate_streak, calculate_athlete_level, get_user_badges, get_community_leaderboard, get_next_milestone
 from modules.nutrition import calculate_nutrition_plan
 from modules.video_analysis import analyze_workout_video
 from modules.exercise_guide import EXERCISE_GUIDES
@@ -571,6 +573,46 @@ def apply_dashboard_theme():
     }
 
     /* Nutrition & Macro Cards */
+    /* Milestone & Goal Progress Box */
+    .milestone-box {
+        background: linear-gradient(145deg, rgba(20, 27, 38, 0.95), rgba(14, 19, 29, 0.95));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Accuracy Rating Pills */
+    .acc-pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .acc-elite {
+        background: rgba(0, 255, 135, 0.12);
+        color: #00ff87;
+        border: 1px solid rgba(0, 255, 135, 0.3);
+    }
+    .acc-good {
+        background: rgba(0, 210, 255, 0.12);
+        color: #00d2ff;
+        border: 1px solid rgba(0, 210, 255, 0.3);
+    }
+    .acc-tune {
+        background: rgba(255, 157, 43, 0.12);
+        color: #ff9d2b;
+        border: 1px solid rgba(255, 157, 43, 0.3);
+    }
+
     .macro-card {
         background: linear-gradient(145deg, #131924, #0e131d);
         border-radius: 12px;
@@ -680,9 +722,16 @@ def main_app():
         "Profile": "👤",
         "Settings": "⚙️"
     }
+    nav_keys = list(nav_items.keys())
+    if "nav_selection" not in st.session_state:
+        st.session_state["nav_selection"] = "Dashboard"
+    elif st.session_state["nav_selection"] not in nav_keys:
+        st.session_state["nav_selection"] = "Dashboard"
+
     choice = st.sidebar.radio(
         "Navigation",
-        list(nav_items.keys()),
+        nav_keys,
+        key="nav_selection",
         format_func=lambda x: nav_items[x],
         label_visibility="collapsed"
     )
@@ -713,11 +762,36 @@ def main_app():
         st.markdown("<h1>Performance Dashboard</h1>", unsafe_allow_html=True)
         st.markdown('<p class="page-subtitle">Track your training metrics, daily volume, and movement consistency.</p>', unsafe_allow_html=True)
         
+        # Interactive Quick Action Launchers
+        qa_col1, qa_col2, qa_col3, qa_col4 = st.columns(4)
+        with qa_col1:
+            if st.button("🏋️ Start Live Camera", use_container_width=True, key="qa_live_cam"):
+                st.session_state["nav_selection"] = "Live Workout"
+                st.session_state["live_workout_mode"] = "📹 Live Camera Trainer"
+                st.rerun()
+        with qa_col2:
+            if st.button("📁 Analyze Video", use_container_width=True, key="qa_vid_ana"):
+                st.session_state["nav_selection"] = "Live Workout"
+                st.session_state["live_workout_mode"] = "📁 Analyze Recorded Video (.mp4)"
+                st.rerun()
+        with qa_col3:
+            if st.button("🥗 Nutrition Targets", use_container_width=True, key="qa_nutrition"):
+                st.session_state["nav_selection"] = "Nutrition"
+                st.rerun()
+        with qa_col4:
+            if st.button("📈 Deep Progress", use_container_width=True, key="qa_progress"):
+                st.session_state["nav_selection"] = "Progress"
+                st.rerun()
+
+        st.markdown("<div style='height: 6px;'></div>", unsafe_allow_html=True)
+
         df = fetch_user_workouts(user['id'])
         level_info = calculate_athlete_level(df)
         streak = calculate_streak(df)
         badges = get_user_badges(df)
         leaderboard = get_community_leaderboard()
+        milestone = get_next_milestone(df, streak, badges)
+        unlocked_count = len([b for b in badges if b['unlocked']])
 
         # Athlete Level & XP Banner
         st.markdown(f'''
@@ -735,63 +809,245 @@ def main_app():
                     <div style="font-size: 11.5px; color: #8b949e; margin-top: 6px; font-weight: 600;">{level_info['progress_pct']}% to Level {level_info['level']+1}</div>
                 </div>
             </div>
-            <div class="xp-bar-track" style="margin-top: -16px; margin-bottom: 24px;">
+            <div class="xp-bar-track" style="margin-top: -16px; margin-bottom: 18px;">
                 <div class="xp-bar-fill" style="width: {level_info['progress_pct']}%;"></div>
             </div>
         ''', unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns(3)
+
+        # Milestone & Next Badge Progress
+        st.markdown(f'''
+            <div class="milestone-box">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 28px;">{milestone['icon']}</div>
+                    <div>
+                        <div style="font-size: 11px; text-transform: uppercase; color: #00d2ff; font-weight: 800; letter-spacing: 1.2px;">NEXT ATHLETE MILESTONE</div>
+                        <div style="font-size: 14.5px; font-weight: 700; color: #ffffff;">{milestone['name']} • <span style="font-size: 13px; color: #8b949e; font-weight: 500;">{milestone['target']}</span></div>
+                    </div>
+                </div>
+                <div style="text-align: right; min-width: 150px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #00ff87;">{unlocked_count} of {len(badges)} Badges Unlocked</div>
+                    <div class="xp-bar-track" style="margin-top: 5px; height: 6px;">
+                        <div class="xp-bar-fill" style="width: {milestone['pct']}%;"></div>
+                    </div>
+                </div>
+            </div>
+        ''', unsafe_allow_html=True)
+
+        # Interactive Filters Toolbar
+        st.markdown("### 🔍 Workout Intelligence & Filters")
+        f_col1, f_col2, f_col3 = st.columns([1.6, 1.6, 0.8])
+        with f_col1:
+            timeframe = st.selectbox(
+                "Filter Timeframe",
+                ["All Time", "Today", "This Week (Last 7 Days)", "Last 30 Days"],
+                index=0,
+                key="dash_timeframe_select"
+            )
+        with f_col2:
+            movement_options = ["All Movements", "Squat", "Push Up", "Bicep Curl", "Lunge", "Jumping Jack", "Plank"]
+            exercise_filter = st.selectbox(
+                "Filter Movement",
+                movement_options,
+                index=0,
+                key="dash_exercise_select"
+            )
+        with f_col3:
+            st.write("")
+            st.write("")
+            if st.button("🔄 Reset", use_container_width=True, key="dash_reset_btn"):
+                st.session_state["dash_timeframe_select"] = "All Time"
+                st.session_state["dash_exercise_select"] = "All Movements"
+                st.rerun()
+
+        # Apply Filters to DataFrame
+        filtered_df = df.copy()
+        if not filtered_df.empty:
+            now = datetime.now()
+            if timeframe == "Today":
+                filtered_df = filtered_df[filtered_df['date'].dt.date == now.date()]
+            elif timeframe == "This Week (Last 7 Days)":
+                filtered_df = filtered_df[filtered_df['date'] >= (now - timedelta(days=7))]
+            elif timeframe == "Last 30 Days":
+                filtered_df = filtered_df[filtered_df['date'] >= (now - timedelta(days=30))]
+
+            if exercise_filter != "All Movements":
+                filtered_df = filtered_df[filtered_df['exercise'].str.lower() == exercise_filter.lower()]
+
+        # 4 Core Essential Stat Cards
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(f'''
                 <div class="stat-card">
                     <div class="stat-card-accent"></div>
                     <div class="stat-label">Total Workouts <span>🏋️</span></div>
-                    <div class="stat-value">{len(df)}</div>
+                    <div class="stat-value">{len(filtered_df)}</div>
                     <div class="stat-sub">Completed sessions</div>
                 </div>
             ''', unsafe_allow_html=True)
         with col2:
-            cal_val = f'{df["calories"].sum():.0f}' if not df.empty else "0"
+            total_reps_val = int(filtered_df['reps'].sum()) if not filtered_df.empty else 0
             st.markdown(f'''
                 <div class="stat-card">
                     <div class="stat-card-accent"></div>
-                    <div class="stat-label">Total Calories <span>🔥</span></div>
-                    <div class="stat-value">{cal_val} <span style="font-size: 1.1rem; font-weight: 500; color: #7b838e;">kcal</span></div>
-                    <div class="stat-sub">Energy expended</div>
+                    <div class="stat-label">Total Volume <span>⚡</span></div>
+                    <div class="stat-value">{total_reps_val} <span style="font-size: 1.1rem; font-weight: 500; color: #7b838e;">reps</span></div>
+                    <div class="stat-sub">Mechanical repetitions</div>
                 </div>
             ''', unsafe_allow_html=True)
         with col3:
-            dur_val = f'{(df["duration_seconds"].sum()/60):.0f}' if not df.empty else "0"
+            cal_val = f'{filtered_df["calories"].sum():.0f}' if not filtered_df.empty else "0"
+            dur_min = f'{(filtered_df["duration_seconds"].sum()/60):.0f}' if not filtered_df.empty else "0"
             st.markdown(f'''
                 <div class="stat-card">
                     <div class="stat-card-accent"></div>
-                    <div class="stat-label">Total Duration <span>⏱️</span></div>
-                    <div class="stat-value">{dur_val} <span style="font-size: 1.1rem; font-weight: 500; color: #7b838e;">min</span></div>
-                    <div class="stat-sub">Active training time</div>
+                    <div class="stat-label">Active Calories <span>🔥</span></div>
+                    <div class="stat-value">{cal_val} <span style="font-size: 1.1rem; font-weight: 500; color: #7b838e;">kcal</span></div>
+                    <div class="stat-sub">⏱️ {dur_min} mins training time</div>
+                </div>
+            ''', unsafe_allow_html=True)
+        with col4:
+            if not filtered_df.empty and 'accuracy_score' in filtered_df.columns and filtered_df['accuracy_score'].notna().any():
+                avg_acc = filtered_df['accuracy_score'].mean()
+                acc_val = f"{avg_acc:.1f}%"
+                if avg_acc >= 90:
+                    badge_markup = '<span class="acc-pill acc-elite">🟢 Elite Form</span>'
+                elif avg_acc >= 80:
+                    badge_markup = '<span class="acc-pill acc-good">🔵 Solid Form</span>'
+                else:
+                    badge_markup = '<span class="acc-pill acc-tune">🟡 Needs Form Tuning</span>'
+            else:
+                acc_val = "N/A"
+                badge_markup = '<span class="acc-pill acc-good">AI Pose Tracking</span>'
+            
+            st.markdown(f'''
+                <div class="stat-card">
+                    <div class="stat-card-accent"></div>
+                    <div class="stat-label">Avg Accuracy <span>🎯</span></div>
+                    <div class="stat-value">{acc_val}</div>
+                    <div class="stat-sub" style="margin-top: 8px;">{badge_markup}</div>
                 </div>
             ''', unsafe_allow_html=True)
 
-        # Achievements & Badges Showcase
-        st.markdown("<h3 style='margin-top: 32px;'>🏆 Athlete Achievements & Badges</h3>", unsafe_allow_html=True)
-        st.markdown('<p class="page-subtitle">Unlock trophies by building consistency, mastering movements, and pushing volume.</p>', unsafe_allow_html=True)
+        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-        b_cols = st.columns(4)
-        for idx, badge in enumerate(badges):
-            col_target = b_cols[idx % 4]
-            with col_target:
-                status_cls = "unlocked" if badge["unlocked"] else "locked"
-                status_icon = "✨ Unlocked" if badge["unlocked"] else "🔒 Locked"
-                status_color = "#00ff87" if badge["unlocked"] else "#7d8590"
-                st.markdown(f'''
-                    <div class="badge-card {status_cls}" style="margin-bottom: 14px;">
-                        <div style="font-size: 32px; margin-bottom: 6px;">{badge["icon"]}</div>
-                        <div style="font-weight: 700; font-size: 13.5px; color: #ffffff; margin-bottom: 3px;">{badge["name"]}</div>
-                        <div style="font-size: 11px; color: #8b949e; line-height: 1.35; margin-bottom: 8px;">{badge["description"]}</div>
-                        <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {status_color};">{status_icon}</span>
-                    </div>
-                ''', unsafe_allow_html=True)
+        # Interactive Performance Chart Visualizer
+        st.markdown("### 📈 Performance Visualizer & Biomechanics")
+        chart_view = st.radio(
+            "Visual View Mode",
+            ["📊 Daily Volume & Caloric Burn", "🎯 Form Accuracy Biomechanics (%)"],
+            horizontal=True,
+            label_visibility="collapsed",
+            key="dash_chart_view_mode"
+        )
 
-        # Community Leaderboard
+        if filtered_df.empty:
+            st.markdown('''
+                <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 36px 20px; text-align: center; margin: 16px 0;">
+                    <div style="font-size: 36px; margin-bottom: 8px;">🏋️</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #ffffff;">No workout sessions match this filter</div>
+                    <div style="font-size: 12.5px; color: #8b949e; margin-top: 4px; margin-bottom: 16px;">Adjust your timeframe or movement filter above, or start your training session now!</div>
+                </div>
+            ''', unsafe_allow_html=True)
+            if st.button("🚀 Quick Start Live Squat Workout", key="quick_start_empty"):
+                st.session_state["nav_selection"] = "Live Workout"
+                st.session_state["live_workout_mode"] = "📹 Live Camera Trainer"
+                st.rerun()
+        else:
+            if chart_view == "📊 Daily Volume & Caloric Burn":
+                # Aggregate daily volume and calories
+                daily_stats = filtered_df.groupby(filtered_df['date'].dt.strftime('%b %d')).agg({
+                    'reps': 'sum',
+                    'calories': 'sum',
+                    'duration_seconds': 'sum'
+                }).reset_index()
+
+                fig = go.Figure()
+                fig.add_trace(go.Bar(
+                    x=daily_stats['date'],
+                    y=daily_stats['reps'],
+                    name='Reps Volume',
+                    marker=dict(color='#00ff87', line=dict(color='#ffffff', width=0.5)),
+                    hovertemplate="<b>%{x}</b><br>Volume: %{y} Reps<extra></extra>"
+                ))
+                fig.add_trace(go.Scatter(
+                    x=daily_stats['date'],
+                    y=daily_stats['calories'],
+                    name='Calories Burned (kcal)',
+                    yaxis='y2',
+                    mode='lines+markers',
+                    line=dict(color='#00d2ff', width=3),
+                    marker=dict(size=8, color='#60efff', line=dict(color='#0b0f17', width=1.5)),
+                    hovertemplate="<b>%{x}</b><br>Energy: %{y:.0f} kcal<extra></extra>"
+                ))
+                fig.update_layout(
+                    template='plotly_dark',
+                    plot_bgcolor='#131924',
+                    paper_bgcolor='#131924',
+                    font=dict(color='#e6edf3', family='-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'),
+                    margin=dict(l=20, r=20, t=25, b=20),
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                    xaxis=dict(gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e')),
+                    yaxis=dict(title=dict(text="Reps Volume", font=dict(color="#00ff87")), gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e')),
+                    yaxis2=dict(title=dict(text="Calories (kcal)", font=dict(color="#00d2ff")), overlaying='y', side='right', gridcolor='rgba(255,255,255,0)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e')),
+                    hovermode="x unified"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
+            elif chart_view == "🎯 Form Accuracy Biomechanics (%)":
+                chart_acc = filtered_df.sort_values(by='date').copy()
+                chart_acc['display_date'] = chart_acc['date'].dt.strftime('%b %d %H:%M')
+                
+                fig_acc = go.Figure()
+                fig_acc.add_trace(go.Scatter(
+                    x=chart_acc['display_date'],
+                    y=chart_acc['accuracy_score'],
+                    mode='lines+markers',
+                    name='Biomechanical Accuracy %',
+                    line=dict(color='#00ff87', width=3),
+                    marker=dict(size=9, color='#00ff87', line=dict(color='#ffffff', width=2)),
+                    text=chart_acc['exercise'],
+                    hovertemplate="<b>%{x}</b><br>Movement: %{text}<br>Form Accuracy: %{y:.1f}%<extra></extra>"
+                ))
+                fig_acc.add_hline(
+                    y=90.0,
+                    line_dash="dot",
+                    line_color="#ff9d2b",
+                    line_width=1.5,
+                    annotation_text="90% Elite Benchmark",
+                    annotation_position="top left",
+                    annotation_font_color="#ff9d2b",
+                    annotation_font_size=11
+                )
+                fig_acc.update_layout(
+                    template='plotly_dark',
+                    plot_bgcolor='#131924',
+                    paper_bgcolor='#131924',
+                    font=dict(color='#e6edf3', family='-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'),
+                    margin=dict(l=20, r=20, t=25, b=20),
+                    yaxis=dict(title="Accuracy Score (%)", range=[0, 105], gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e')),
+                    xaxis=dict(gridcolor='rgba(255,255,255,0.06)', linecolor='rgba(255,255,255,0.1)', tickfont=dict(color='#8b949e'))
+                )
+                st.plotly_chart(fig_acc, use_container_width=True)
+
+        # Achievements Showcase in Clean Expander
+        with st.expander(f"🏆 Athlete Trophy Case ({unlocked_count}/{len(badges)} Badges Unlocked)", expanded=False):
+            b_cols = st.columns(4)
+            for idx, badge in enumerate(badges):
+                col_target = b_cols[idx % 4]
+                with col_target:
+                    status_cls = "unlocked" if badge["unlocked"] else "locked"
+                    status_icon = "✨ Unlocked" if badge["unlocked"] else "🔒 Locked"
+                    status_color = "#00ff87" if badge["unlocked"] else "#7d8590"
+                    st.markdown(f'''
+                        <div class="badge-card {status_cls}" style="margin-bottom: 14px;">
+                            <div style="font-size: 32px; margin-bottom: 6px;">{badge["icon"]}</div>
+                            <div style="font-weight: 700; font-size: 13.5px; color: #ffffff; margin-bottom: 3px;">{badge["name"]}</div>
+                            <div style="font-size: 11px; color: #8b949e; line-height: 1.35; margin-bottom: 8px;">{badge["description"]}</div>
+                            <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: {status_color};">{status_icon}</span>
+                        </div>
+                    ''', unsafe_allow_html=True)
+
+        # Community Leaderboard in Clean Expander
         with st.expander("🌍 Community Leaderboard (Top Athletes)", expanded=False):
             if leaderboard:
                 leader_df = pd.DataFrame(leaderboard)
@@ -809,19 +1065,40 @@ def main_app():
                 )
             else:
                 st.info("Leaderboard will populate as athletes complete sessions.")
-            
-        st.markdown("---")
-        if not df.empty:
-            st.subheader("Recent Activity")
-            st.dataframe(df.tail(5)[['date', 'exercise', 'reps', 'sets', 'calories']].sort_values(by='date', ascending=False), use_container_width=True)
+
+        # Interactive Recent Activity Table
+        st.markdown("### ⏱️ Recent Workout Sessions")
+        if not filtered_df.empty:
+            recent = filtered_df.sort_values(by='date', ascending=False).head(8).copy()
+            recent['formatted_date'] = recent['date'].dt.strftime('%b %d, %Y • %I:%M %p')
+            recent['acc_display'] = recent['accuracy_score'].apply(lambda a: f"{a:.1f}% 🎯" if pd.notna(a) else "-")
+            recent['cal_display'] = recent['calories'].apply(lambda c: f"{c:.0f} kcal" if pd.notna(c) else "-")
+            recent['dur_display'] = recent['duration_seconds'].apply(lambda d: f"{int(d)//60}m {int(d)%60}s" if pd.notna(d) else "-")
+
+            table_df = recent[['formatted_date', 'exercise', 'reps', 'sets', 'acc_display', 'cal_display', 'dur_display']].rename(columns={
+                'formatted_date': 'Date & Time',
+                'exercise': 'Exercise',
+                'reps': 'Reps',
+                'sets': 'Sets',
+                'acc_display': 'Accuracy',
+                'cal_display': 'Calories',
+                'dur_display': 'Duration'
+            })
+            st.dataframe(table_df, use_container_width=True, hide_index=True)
         else:
-            st.info("No workouts found yet. Head over to **Live Workout** to begin your first session!")
+            st.info("No workouts found for the selected filter. Switch filters or begin your first session!")
 
     elif choice == "Live Workout":
         st.markdown("<h1>Live Workout Trainer & Video Analyzer</h1>", unsafe_allow_html=True)
         st.markdown('<p class="page-subtitle">Real-time computer vision pose analysis, voice coaching, and offline gym video evaluation.</p>', unsafe_allow_html=True)
         
-        mode = st.radio("Workout Input Mode", ["📹 Live Camera Trainer", "📁 Analyze Recorded Video (.mp4)"], horizontal=True, label_visibility="collapsed")
+        mode_options = ["📹 Live Camera Trainer", "📁 Analyze Recorded Video (.mp4)"]
+        default_mode_index = 0
+        if st.session_state.get('live_workout_mode') in mode_options:
+            default_mode_index = mode_options.index(st.session_state['live_workout_mode'])
+            st.session_state.pop('live_workout_mode', None)
+
+        mode = st.radio("Workout Input Mode", mode_options, index=default_mode_index, horizontal=True, label_visibility="collapsed")
         
         if mode == "📹 Live Camera Trainer":
             col1, col2 = st.columns([1, 2])
