@@ -911,21 +911,27 @@ def main_app():
         if mode == "📹 Live Camera Trainer":
             col1, col2 = st.columns([1, 2])
             with col1:
-                exercise = st.selectbox("Select Exercise", ["Squat", "Push Up", "Bicep Curl", "Lunge", "Jumping Jack", "Plank"])
-                target_reps = st.number_input("Target Reps per Set", min_value=1, value=10)                
+                exercise_list = ["Squat", "Push Up", "Bicep Curl", "Lunge", "Jumping Jack", "Plank"]
+                def_ex = st.session_state.get('default_exercise', 'Squat')
+                ex_idx = exercise_list.index(def_ex) if def_ex in exercise_list else 0
+                exercise = st.selectbox("Select Exercise", exercise_list, index=ex_idx)
+                
+                def_reps = int(st.session_state.get('default_target_reps', 10))
+                target_reps = st.number_input("Target Reps per Set", min_value=1, value=def_reps)                
                 # Voice Coach toggle
                 v_enabled = st.checkbox("🔊 Voice Coach Feedback", value=st.session_state.get('voice_coach_enabled', True))
                 st.session_state['voice_coach_enabled'] = v_enabled
                 
-                # Rest Timer Widget
+                # Rest Timer Widget (using member default from Settings)
+                default_rest = int(st.session_state.get('default_rest_time', 60))
                 st.markdown("### ⏱️ Rest-Time Timer")
                 col_r1, col_r2, col_r3 = st.columns(3)
                 with col_r1:
                     if st.button("30s Rest"):
                         st.session_state['rest_active'] = 30
                 with col_r2:
-                    if st.button("60s Rest"):
-                        st.session_state['rest_active'] = 60
+                    if st.button(f"{default_rest}s (Default)"):
+                        st.session_state['rest_active'] = default_rest
                 with col_r3:
                     if st.button("90s Rest"):
                         st.session_state['rest_active'] = 90
@@ -1255,71 +1261,110 @@ def main_app():
                 st.error(msg)
 
     elif choice == "Settings":
-        st.markdown("<h1>Application Settings</h1>", unsafe_allow_html=True)
-        st.markdown('<p class="page-subtitle">Configure AI motion detection, audio coaching, training rest periods, and athlete data.</p>', unsafe_allow_html=True)
+        st.markdown("<h1>Member & Workout Settings</h1>", unsafe_allow_html=True)
+        st.markdown('<p class="page-subtitle">Configure your personal routine, audio coaching, camera mirror, and workout targets.</p>', unsafe_allow_html=True)
 
         set_col1, set_col2 = st.columns(2)
+        
         with set_col1:
-            st.markdown("### 📹 Vision & Camera Preferences")
-            cam_mirror = st.checkbox("Mirror Camera View (Gym Mirror Effect)", value=st.session_state.get('camera_mirror_mode', True), help="Flips the live webcam stream horizontally so you can mirror movements naturally.")
-            st.session_state['camera_mirror_mode'] = cam_mirror
+            st.markdown("### 🏋️ My Training Preferences (Aapka Routine)")
+            
+            # 1. Favorite / Default Exercise
+            exercise_opts = ["Squat", "Push Up", "Bicep Curl", "Lunge", "Jumping Jack", "Plank"]
+            cur_fav = st.session_state.get('default_exercise', 'Squat')
+            fav_idx = exercise_opts.index(cur_fav) if cur_fav in exercise_opts else 0
+            new_fav = st.selectbox(
+                "Primary / Favorite Exercise",
+                exercise_opts,
+                index=fav_idx,
+                help="Live Workout open karte hi yeh exercise automatically pehle se select rahegi."
+            )
+            st.session_state['default_exercise'] = new_fav
+            
+            # 2. Target Reps per set
+            cur_reps = int(st.session_state.get('default_target_reps', 10))
+            new_reps = st.number_input(
+                "Default Target Reps per Set",
+                min_value=1,
+                max_value=50,
+                value=cur_reps,
+                step=1,
+                help="Har workout set mein aap kitne reps karna chahte hain."
+            )
+            st.session_state['default_target_reps'] = new_reps
 
-            show_skel = st.checkbox("Show Real-Time Pose Skeleton Wireframe", value=st.session_state.get('show_skeleton_overlay', True), help="Draws dynamic joint landmarks and green/blue connection lines over your body on video.")
-            st.session_state['show_skeleton_overlay'] = show_skel
-
-            strict_opts = ["Balanced (Recommended)", "Strict (Competition Form)", "Lenient (Beginner Friendly)"]
-            cur_strict = st.session_state.get('form_strictness', "Balanced (Recommended)")
-            strict_idx = strict_opts.index(cur_strict) if cur_strict in strict_opts else 0
-            new_strict = st.selectbox("AI Form Strictness & Thresholds", strict_opts, index=strict_idx, help="Controls how strictly the AI verifies joint angles before validating a completed repetition.")
-            st.session_state['form_strictness'] = new_strict
-
-            st.markdown("### 🏋️ Training & Timer Preferences")
-            def_reps = st.number_input("Default Target Reps per Set", min_value=1, max_value=100, value=int(st.session_state.get('default_target_reps', 10)), step=1)
-            st.session_state['default_target_reps'] = def_reps
-
-            rest_options = [30, 45, 60, 90, 120]
+            # 3. Default Rest Timer
+            rest_choices = [30, 45, 60, 90, 120]
             cur_rest = int(st.session_state.get('default_rest_time', 60))
-            rest_idx = rest_options.index(cur_rest) if cur_rest in rest_options else 2
-            new_rest = st.selectbox("Default Rest Timer Interval", rest_options, index=rest_idx, format_func=lambda s: f"{s} seconds", help="Default timer length when resting between heavy sets.")
+            rest_idx = rest_choices.index(cur_rest) if cur_rest in rest_choices else 2
+            new_rest = st.selectbox(
+                "Default Rest Time Between Sets",
+                rest_choices,
+                index=rest_idx,
+                format_func=lambda s: f"{s} seconds",
+                help="Sets ke beech mein aamtaur par aap kitna rest lete hain."
+            )
             st.session_state['default_rest_time'] = new_rest
 
+            # 4. Daily Target Goal
+            daily_goal_opts = [30, 50, 75, 100, 150, 200]
+            cur_goal = int(st.session_state.get('daily_reps_goal', 50))
+            goal_idx = daily_goal_opts.index(cur_goal) if cur_goal in daily_goal_opts else 1
+            new_goal = st.selectbox(
+                "Daily Repetition Target Goal",
+                daily_goal_opts,
+                index=goal_idx,
+                format_func=lambda g: f"{g} reps / day",
+                help="Rozana ka workout volume goal jo aap achieve karna chahte hain."
+            )
+            st.session_state['daily_reps_goal'] = new_goal
+
         with set_col2:
-            st.markdown("### 🔊 AI Voice Coach & Audio Settings")
-            vc = st.checkbox("Enable Real-Time Voice Coach", value=st.session_state.get('voice_coach_enabled', True), help="Announces rep counts and speaks corrective biomechanical cues.")
+            st.markdown("### 🔊 Audio & Camera (Aawaz aur Video)")
+
+            # 1. Voice Coach Toggle
+            vc = st.checkbox(
+                "AI Voice Coach Audio Feedback",
+                value=st.session_state.get('voice_coach_enabled', True),
+                help="Workout karte waqt AI aapko rep count aur posture guidance bol kar batayega."
+            )
             st.session_state['voice_coach_enabled'] = vc
 
-            speech_rate = st.slider("Voice Speech Speed", min_value=0.8, max_value=1.3, value=float(st.session_state.get('voice_speech_rate', 1.05)), step=0.05, help="Speed of spoken audio cues.")
-            st.session_state['voice_speech_rate'] = speech_rate
+            # 2. Test Audio Button
+            if st.button("🔊 Test Voice Coach (Aawaz Check Karein)", use_container_width=True, key="test_voice_btn"):
+                speak_cue("Welcome to Hyper Gym! Your voice coach is active and ready for your workout.")
+                st.success("Test audio cue spoken! Agar aawaz nahi aayi toh device volume badhayein.")
 
-            speech_pitch = st.slider("Voice Speech Pitch", min_value=0.8, max_value=1.3, value=float(st.session_state.get('voice_speech_pitch', 1.0)), step=0.05, help="Pitch tone of the synthetic voice.")
-            st.session_state['voice_speech_pitch'] = speech_pitch
+            st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
-            if st.button("🔊 Test Voice Coach Now", use_container_width=True, key="test_voice_btn"):
-                speak_cue("Hyper Gym Voice Coach is online. Ready for your training session!")
-                st.success("Spoke test audio cue! If you didn't hear audio, make sure your device volume is turned up.")
-
-            st.markdown("### 💾 Athlete Data & Privacy")
-            st.markdown("<p style='font-size: 13px; color: #8b949e;'>Manage your stored workout history or download an offline copy.</p>", unsafe_allow_html=True)
-            
-            df_curr = fetch_user_workouts(user['id'])
-            csv_data = df_curr.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Export Complete Workout Data (CSV)",
-                data=csv_data,
-                file_name=f"hypergym_workouts_{user['username']}.csv",
-                mime="text/csv",
-                use_container_width=True
+            # 3. Camera Mirror Mode
+            cam_mirror = st.checkbox(
+                "Mirror Camera View (Gym Aaina Effect)",
+                value=st.session_state.get('camera_mirror_mode', True),
+                help="Camera ko aaine (mirror) ki tarah flip karega taaki left/right movement natural lage."
             )
+            st.session_state['camera_mirror_mode'] = cam_mirror
 
-            with st.expander("⚠️ Danger Zone (Reset History)"):
-                st.warning("This will permanently delete all your logged workout sessions from the database. This action cannot be undone.")
-                confirm_del = st.checkbox("Yes, I understand and want to permanently clear my workout history.", key="confirm_clear_history")
-                if st.button("🗑️ Clear My Workout History", type="secondary", disabled=not confirm_del, key="clear_history_btn"):
+            # 4. Skeleton Lines
+            show_skel = st.checkbox(
+                "Show Real-Time Skeleton Tracking on Video",
+                value=st.session_state.get('show_skeleton_overlay', True),
+                help="Camera ke upar green/blue joint tracking lines dikhayega."
+            )
+            st.session_state['show_skeleton_overlay'] = show_skel
+
+            st.markdown("### 🔄 Reset / Fresh Start")
+            st.markdown("<p style='font-size: 12.5px; color: #8b949e;'>Agar aapko apni test workout history delete karke bilkul nayi shuruat karni ho:</p>", unsafe_allow_html=True)
+            
+            with st.expander("🗑️ Reset My Workout History", expanded=False):
+                st.warning("Dhyan dein: Isse aapke ab tak ke sabhi logged workouts permanently delete ho jayenge.")
+                confirm_del = st.checkbox("Haan, mujhe meri workout history clear karni hai.", key="confirm_clear_history")
+                if st.button("Permanently Clear History", type="secondary", disabled=not confirm_del, key="clear_history_btn"):
                     if clear_user_workouts(user['id']):
-                        st.success("Your workout history has been completely reset.")
+                        st.success("Aapka workout history reset ho gaya hai!")
                         st.rerun()
                     else:
-                        st.error("Failed to clear workouts. Please try again.")
+                        st.error("Clear karne mein error aaya. Kripya dobara try karein.")
 
 # Session State Initialization
 if 'logged_in' not in st.session_state:
