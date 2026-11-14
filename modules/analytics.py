@@ -83,3 +83,18 @@ def plot_exercise_distribution(df):
         marker=dict(line=dict(color='#131924', width=2))
     )
     return fig
+
+
+def clear_user_workouts(user_id):
+    """Deletes all workout history for a specific user."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM workouts WHERE user_id = ?", (user_id,))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error clearing workouts: {e}")
+        return False
+    finally:
+        conn.close()

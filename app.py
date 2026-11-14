@@ -23,13 +23,13 @@ from auth.login_ui import render_login_page
 from modules.pose_detector import PoseDetector
 from modules.form_analyzer import FormAnalyzer
 from modules.rep_counter import RepCounter
-from modules.analytics import fetch_user_workouts, plot_calories_over_time, plot_exercise_distribution, save_workout
+from modules.analytics import fetch_user_workouts, plot_calories_over_time, plot_exercise_distribution, save_workout, clear_user_workouts
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from modules.gamification import calculate_streak, calculate_athlete_level, get_user_badges, get_community_leaderboard, get_next_milestone
-from modules.nutrition import calculate_nutrition_plan
+from modules.nutrition import calculate_nutrition_plan, get_member_action_plan
 from modules.video_analysis import analyze_workout_video
-from modules.exercise_guide import EXERCISE_GUIDES
+from modules.exercise_guide import EXERCISE_GUIDES, get_exercise_svg
 from database.db import init_db
 
 # Initialize DB on first run
@@ -632,9 +632,13 @@ class GymVideoProcessor(VideoProcessorBase):
         self.analyzer = FormAnalyzer()
         self.counter = RepCounter()
         self.exercise = "Squat"
+        self.mirror = True
+        self.draw_skeleton = True
         
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
+        if getattr(self, "mirror", True):
+            img = cv2.flip(img, 1)
         
         if self.detector.error:
             cv2.putText(img, "MediaPipe Error:", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -642,7 +646,8 @@ class GymVideoProcessor(VideoProcessorBase):
             return av.VideoFrame.from_ndarray(img, format="bgr24")
             
         timestamp_ms = int(time.time() * 1000)
-        img, pose_result = self.detector.find_pose(img, timestamp_ms, draw=True)
+        draw_skel = getattr(self, "draw_skeleton", True)
+        img, pose_result = self.detector.find_pose(img, timestamp_ms, draw=draw_skel)
         lm_list = self.detector.get_position(img, pose_result, draw=False)
         
         angle = None
@@ -682,6 +687,10 @@ class GymVideoProcessor(VideoProcessorBase):
 
 def main_app():
     user = st.session_state['user']
+
+    # Page Redirection Handler (executes BEFORE sidebar.radio is created)
+    if "redirect_page" in st.session_state:
+        st.session_state["nav_selection"] = st.session_state.pop("redirect_page")
     
     # Sidebar Brand Header matching Hyper Gym login identity
     st.sidebar.markdown('''
@@ -774,11 +783,14 @@ def main_app():
                     <span style="font-size: 13px; color: #ff9d2b; font-weight: 700;">🔥 {streak}-Day Streak</span>
                 </div>
             ''', unsafe_allow_html=True)
+        def launch_live_workout():
+            st.session_state["redirect_page"] = "Live Workout"
+            st.session_state["live_workout_mode"] = "📹 Live Camera Trainer"
+            st.session_state["just_launched_workout"] = True
+
         with head_col2:
             st.write("")
-            if st.button("🏋️ Start Workout", use_container_width=True, key="dash_simple_start_btn"):
-                st.session_state["nav_selection"] = "Live Workout"
-                st.session_state["live_workout_mode"] = "📹 Live Camera Trainer"
+            if st.button("🏋️ Start Workout", use_container_width=True, key="dash_simple_start_btn", on_click=launch_live_workout):
                 st.rerun()
 
         # 4 Essential Metric Cards
@@ -884,6 +896,9 @@ def main_app():
     elif choice == "Live Workout":
         st.markdown("<h1>Live Workout Trainer & Video Analyzer</h1>", unsafe_allow_html=True)
         st.markdown('<p class="page-subtitle">Real-time computer vision pose analysis, voice coaching, and offline gym video evaluation.</p>', unsafe_allow_html=True)
+
+        if st.session_state.pop('just_launched_workout', False):
+            st.success("🚀 **Workout Started from Dashboard!** Position yourself in front of the camera, check the posture guide below, and click **START** on the camera to begin rep counting.")
         
         mode_options = ["📹 Live Camera Trainer", "📁 Analyze Recorded Video (.mp4)"]
         default_mode_index = 0
@@ -929,18 +944,32 @@ def main_app():
                     height=160
                 )
                 
-                # Exercise Technique & Form Guide Expander
+                # Exercise Technique & Form Guide Expander with Visual Postures
                 guide = EXERCISE_GUIDES.get(exercise, {})
                 if guide:
-                    with st.expander(f"📖 {exercise} Technique Guide", expanded=False):
-                        st.markdown(f"**Target Muscles**: {guide.get('muscles', 'N/A')}")
-                        st.markdown(f"**Target Angles**: `{guide.get('target_angle', '')}`")
-                        st.markdown("**Form Cues:**")
-                        for cue in guide.get('cues', []):
-                            st.markdown(f"• {cue}")
-                        st.markdown("**Common Mistakes:**")
+                    with st.expander(f"📖 {exercise} Technique Guide & Visual Postures", expanded=True):
+                        # Visual Illustration (Start Position vs Proper Execution)
+                        svg_visual = get_exercise_svg(exercise)
+                        if svg_visual:
+                            st.markdown(svg_visual, unsafe_allow_html=True)
+                            st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+                        
+                        step_c1, step_c2 = st.columns(2)
+                        with step_c1:
+                            st.markdown("<div style='font-size: 12.5px; font-weight: 800; color: #00d2ff; text-transform: uppercase; margin-bottom: 6px;'>📍 Step 1: Start Position (Kaise Shuru Karein)</div>", unsafe_allow_html=True)
+                            for s in guide.get("start_position", []):
+                                st.markdown(f"<div style='font-size: 12px; color: #c9d1d9; margin-bottom: 4px; line-height: 1.4;'>• {s}</div>", unsafe_allow_html=True)
+                        with step_c2:
+                            st.markdown("<div style='font-size: 12.5px; font-weight: 800; color: #00ff87; text-transform: uppercase; margin-bottom: 6px;'>⚡ Step 2: Proper Execution (Kaise Karein)</div>", unsafe_allow_html=True)
+                            for e in guide.get("execution", []):
+                                st.markdown(f"<div style='font-size: 12px; color: #c9d1d9; margin-bottom: 4px; line-height: 1.4;'>• {e}</div>", unsafe_allow_html=True)
+                        
+                        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                        st.markdown(f"**🎯 Target Muscles**: `{guide.get('muscles', 'N/A')}`")
+                        st.markdown(f"**📐 Target Angle Threshold**: `{guide.get('target_angle', '')}`")
+                        st.markdown("**⚠️ Common Mistakes to Avoid:**")
                         for m in guide.get('mistakes', []):
-                            st.markdown(f"⚠️ {m}")
+                            st.markdown(f"• ⚠️ {m}")
                             
             with col2:
                 RTC_CONFIGURATION = {
@@ -956,6 +985,8 @@ def main_app():
                 )
                 
                 if ctx.video_processor:
+                    ctx.video_processor.mirror = st.session_state.get('camera_mirror_mode', True)
+                    ctx.video_processor.draw_skeleton = st.session_state.get('show_skeleton_overlay', True)
                     if ctx.video_processor.exercise != exercise:
                         ctx.video_processor.counter.reset()
                         ctx.video_processor.exercise = exercise
@@ -1079,8 +1110,8 @@ def main_app():
                 )
 
     elif choice == "Nutrition":
-        st.markdown("<h1>Smart Nutrition & Caloric Architecture</h1>", unsafe_allow_html=True)
-        st.markdown('<p class="page-subtitle">Scientific BMR, TDEE, macronutrient targets, and hydration calculated for your physique and goals.</p>', unsafe_allow_html=True)
+        st.markdown("<h1>Smart Nutrition & Body Architecture</h1>", unsafe_allow_html=True)
+        st.markdown('<p class="page-subtitle">Scientific BMR, TDEE, macronutrient targets, and easy personalized meal plans for gym members.</p>', unsafe_allow_html=True)
         
         col_n1, col_n2 = st.columns([1, 1.3])
         with col_n1:
@@ -1097,12 +1128,13 @@ def main_app():
             
         with col_n2:
             plan = calculate_nutrition_plan(n_weight, n_height, n_age, n_gender, n_goal, act_clean)
+            member_plan = get_member_action_plan(plan, n_goal, act_clean)
             
             st.markdown(f'''
-                <div class="macro-card" style="margin-bottom: 16px; border-color: rgba(0, 255, 135, 0.3);">
+                <div class="macro-card" style="margin-bottom: 16px; border-color: rgba(0, 255, 135, 0.35);">
                     <div style="font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #00ff87;">RECOMMENDED DAILY INTAKE</div>
                     <div style="font-size: 2.8rem; font-weight: 800; color: #ffffff; line-height: 1.1; margin: 4px 0;">{plan['target_calories']} <span style="font-size: 1.2rem; color: #8b949e; font-weight: 500;">kcal/day</span></div>
-                    <div style="font-size: 12.5px; color: #a4b0bd;">Strategy: <b style="color: #00ff87;">{plan['strategy']}</b> • TDEE Baseline: {plan['tdee']} kcal • BMR: {plan['bmr']} kcal</div>
+                    <div style="font-size: 12.5px; color: #a4b0bd;">Strategy: <b style="color: #00ff87;">{plan['strategy']}</b> • {plan['strategy_desc']}</div>
                 </div>
             ''', unsafe_allow_html=True)
             
@@ -1128,7 +1160,7 @@ def main_app():
                     <div class="macro-card" style="border-top: 3px solid #f59e0b;">
                         <div style="font-size: 11px; text-transform: uppercase; color: #f59e0b; font-weight: 700;">Healthy Fats</div>
                         <div style="font-size: 24px; font-weight: 800; color: #ffffff;">{plan['fat_g']}g</div>
-                        <div style="font-size: 10.5px; color: #8b949e;">Hormone Health</div>
+                        <div style="font-size: 10.5px; color: #8b949e;">Hormone Balance</div>
                     </div>
                 ''', unsafe_allow_html=True)
             with m_c4:
@@ -1146,16 +1178,56 @@ def main_app():
                         <span style="font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Physique Index (BMI)</span>
                         <div style="font-size: 18px; font-weight: 800; color: #ffffff;">{plan['bmi']} <span style="font-size: 13px; font-weight: 700; color: {plan['bmi_color']};">({plan['bmi_status']})</span></div>
                     </div>
-                    <div style="font-size: 12px; color: #8b949e;">Optimal Range: 18.5 – 24.9</div>
+                    <div style="font-size: 12px; color: #8b949e; text-align: right;">{plan['bmi_advice']}</div>
                 </div>
             ''', unsafe_allow_html=True)
-            
-        st.markdown("### 💡 Sports Nutrition Pro Tips")
-        n_tip1, n_tip2 = st.columns(2)
-        with n_tip1:
-            st.info("🕒 **Pre-Workout Fuel (60-90 min before)**: Consume complex carbohydrates with moderate protein (e.g., oatmeal with whey, or banana with peanut butter) for sustained muscle glycogen.")
-        with n_tip2:
-            st.success("⚡ **Post-Workout Recovery (within 45 min)**: Prioritize 25-35g of fast-digesting protein alongside simple carbs to trigger muscle protein synthesis (MPS) and replenish glycogen stores.")
+
+        st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+
+        # Easy Explanation for Customer/Member (Aasan Bhasha Mein)
+        st.markdown("### 📖 Nutrition Concepts Explained (Member Guide)")
+        exp1, exp2 = st.columns(2)
+        with exp1:
+            st.markdown(f'''
+                <div style="background: #131924; border: 1px solid rgba(0, 210, 255, 0.2); border-radius: 10px; padding: 16px; height: 100%;">
+                    <div style="font-weight: 800; color: #00d2ff; font-size: 14px; margin-bottom: 6px;">🔥 BMR (Basal Metabolic Rate): {plan['bmr']} kcal</div>
+                    <div style="font-size: 12.5px; color: #c9d1d9; line-height: 1.45;">
+                        <b>Kya hai yeh?</b> Yeh woh calories hain jo aapka sharir <i>bina kisi movement ke</i> sirf zinda rehne ke liye (saans lene, dil dhadakne aur organs chalane ke liye) rozana burn karta hai.
+                    </div>
+                </div>
+            ''', unsafe_allow_html=True)
+        with exp2:
+            st.markdown(f'''
+                <div style="background: #131924; border: 1px solid rgba(0, 255, 135, 0.2); border-radius: 10px; padding: 16px; height: 100%;">
+                    <div style="font-weight: 800; color: #00ff87; font-size: 14px; margin-bottom: 6px;">⚡ TDEE (Total Daily Energy Expenditure): {plan['tdee']} kcal</div>
+                    <div style="font-size: 12.5px; color: #c9d1d9; line-height: 1.45;">
+                        <b>Kya hai yeh?</b> Yeh aapka kul rozana ka kharch hai. Aapke chalne-phirne, kaam karne aur gym mein workouts karne ke baad sharir kul itni energy kharch karta hai.
+                    </div>
+                </div>
+            ''', unsafe_allow_html=True)
+
+        # Member Habit Suggestions
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        st.markdown("### 💡 What You Should Do (Personalized Action Plan)")
+        for h in member_plan["habits"]:
+            st.markdown(f"<div style='font-size: 13px; color: #e6edf3; margin-bottom: 6px; padding: 6px 12px; background: rgba(255,255,255,0.02); border-radius: 6px; border-left: 3px solid #00ff87;'>{h}</div>", unsafe_allow_html=True)
+
+        # Suggested Meal Plans (Veg & Non-Veg Tabs)
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        st.markdown("### 🥗 Recommended Daily Meal Architecture")
+        meal_tab1, meal_tab2 = st.tabs(["🌱 Vegetarian Meal Plan (Shakahari)", "🍗 Non-Vegetarian Meal Plan (Mamsahari)"])
+
+        with meal_tab1:
+            for m in member_plan["meals_veg"]:
+                with st.expander(f"{m['meal']} • {m['calories']}", expanded=True):
+                    for item in m["items"]:
+                        st.markdown(f"• {item}")
+
+        with meal_tab2:
+            for m in member_plan["meals_nonveg"]:
+                with st.expander(f"{m['meal']} • {m['calories']}", expanded=True):
+                    for item in m["items"]:
+                        st.markdown(f"• {item}")
 
     elif choice == "Profile":
         st.markdown("<h1>Athlete Profile</h1>", unsafe_allow_html=True)
@@ -1184,15 +1256,70 @@ def main_app():
 
     elif choice == "Settings":
         st.markdown("<h1>Application Settings</h1>", unsafe_allow_html=True)
-        st.markdown('<p class="page-subtitle">Configure interface, audio feedback, and camera preferences.</p>', unsafe_allow_html=True)
-        
-        st.checkbox("Hyper Gym Athletic Theme", value=True, disabled=True, help="Unified theme matching the Hyper Gym split-card login and sign up experience.")
-        
-        vc = st.checkbox("AI Voice Coach & Audio Cues", value=st.session_state.get('voice_coach_enabled', True), help="Speaks real-time rep counts and postural correction cues using the browser's SpeechSynthesis API.")
-        st.session_state['voice_coach_enabled'] = vc
-        
-        st.selectbox("Default Rest Timer Duration", [30, 45, 60, 90, 120], index=2, format_func=lambda s: f"{s} seconds", help="Default timer length when resting between heavy training sets.")
-        st.selectbox("Camera Selection", ["Default Camera"], help="Camera selection is handled by the browser directly when using the Live Workout feature.")
+        st.markdown('<p class="page-subtitle">Configure AI motion detection, audio coaching, training rest periods, and athlete data.</p>', unsafe_allow_html=True)
+
+        set_col1, set_col2 = st.columns(2)
+        with set_col1:
+            st.markdown("### 📹 Vision & Camera Preferences")
+            cam_mirror = st.checkbox("Mirror Camera View (Gym Mirror Effect)", value=st.session_state.get('camera_mirror_mode', True), help="Flips the live webcam stream horizontally so you can mirror movements naturally.")
+            st.session_state['camera_mirror_mode'] = cam_mirror
+
+            show_skel = st.checkbox("Show Real-Time Pose Skeleton Wireframe", value=st.session_state.get('show_skeleton_overlay', True), help="Draws dynamic joint landmarks and green/blue connection lines over your body on video.")
+            st.session_state['show_skeleton_overlay'] = show_skel
+
+            strict_opts = ["Balanced (Recommended)", "Strict (Competition Form)", "Lenient (Beginner Friendly)"]
+            cur_strict = st.session_state.get('form_strictness', "Balanced (Recommended)")
+            strict_idx = strict_opts.index(cur_strict) if cur_strict in strict_opts else 0
+            new_strict = st.selectbox("AI Form Strictness & Thresholds", strict_opts, index=strict_idx, help="Controls how strictly the AI verifies joint angles before validating a completed repetition.")
+            st.session_state['form_strictness'] = new_strict
+
+            st.markdown("### 🏋️ Training & Timer Preferences")
+            def_reps = st.number_input("Default Target Reps per Set", min_value=1, max_value=100, value=int(st.session_state.get('default_target_reps', 10)), step=1)
+            st.session_state['default_target_reps'] = def_reps
+
+            rest_options = [30, 45, 60, 90, 120]
+            cur_rest = int(st.session_state.get('default_rest_time', 60))
+            rest_idx = rest_options.index(cur_rest) if cur_rest in rest_options else 2
+            new_rest = st.selectbox("Default Rest Timer Interval", rest_options, index=rest_idx, format_func=lambda s: f"{s} seconds", help="Default timer length when resting between heavy sets.")
+            st.session_state['default_rest_time'] = new_rest
+
+        with set_col2:
+            st.markdown("### 🔊 AI Voice Coach & Audio Settings")
+            vc = st.checkbox("Enable Real-Time Voice Coach", value=st.session_state.get('voice_coach_enabled', True), help="Announces rep counts and speaks corrective biomechanical cues.")
+            st.session_state['voice_coach_enabled'] = vc
+
+            speech_rate = st.slider("Voice Speech Speed", min_value=0.8, max_value=1.3, value=float(st.session_state.get('voice_speech_rate', 1.05)), step=0.05, help="Speed of spoken audio cues.")
+            st.session_state['voice_speech_rate'] = speech_rate
+
+            speech_pitch = st.slider("Voice Speech Pitch", min_value=0.8, max_value=1.3, value=float(st.session_state.get('voice_speech_pitch', 1.0)), step=0.05, help="Pitch tone of the synthetic voice.")
+            st.session_state['voice_speech_pitch'] = speech_pitch
+
+            if st.button("🔊 Test Voice Coach Now", use_container_width=True, key="test_voice_btn"):
+                speak_cue("Hyper Gym Voice Coach is online. Ready for your training session!")
+                st.success("Spoke test audio cue! If you didn't hear audio, make sure your device volume is turned up.")
+
+            st.markdown("### 💾 Athlete Data & Privacy")
+            st.markdown("<p style='font-size: 13px; color: #8b949e;'>Manage your stored workout history or download an offline copy.</p>", unsafe_allow_html=True)
+            
+            df_curr = fetch_user_workouts(user['id'])
+            csv_data = df_curr.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Export Complete Workout Data (CSV)",
+                data=csv_data,
+                file_name=f"hypergym_workouts_{user['username']}.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+
+            with st.expander("⚠️ Danger Zone (Reset History)"):
+                st.warning("This will permanently delete all your logged workout sessions from the database. This action cannot be undone.")
+                confirm_del = st.checkbox("Yes, I understand and want to permanently clear my workout history.", key="confirm_clear_history")
+                if st.button("🗑️ Clear My Workout History", type="secondary", disabled=not confirm_del, key="clear_history_btn"):
+                    if clear_user_workouts(user['id']):
+                        st.success("Your workout history has been completely reset.")
+                        st.rerun()
+                    else:
+                        st.error("Failed to clear workouts. Please try again.")
 
 # Session State Initialization
 if 'logged_in' not in st.session_state:

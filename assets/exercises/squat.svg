@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 260" width="100%" height="auto" style="border-radius: 12px; background: #0e1420; border: 1px solid rgba(0, 255, 135, 0.25); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="sq_accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00ff87" />
+      <stop offset="100%" stop-color="#00d2ff" />
+    </linearGradient>
+    <linearGradient id="sq_panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151e2e" />
+      <stop offset="100%" stop-color="#101724" />
+    </linearGradient>
+    <filter id="sq_glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Title Top Bar -->
+  <rect x="0" y="0" width="540" height="34" fill="#131b29"/>
+  <rect x="0" y="0" width="540" height="2" fill="url(#sq_accent)"/>
+  <text x="16" y="22" fill="#ffffff" font-size="12.5" font-weight="800" letter-spacing="1">🏋️ SQUAT TECHNIQUE GUIDE</text>
+  <text x="524" y="22" fill="#00ff87" font-size="11" font-weight="700" text-anchor="end">AI TARGET: &lt; 90° DEPTH</text>
+
+  <!-- Left Panel: Start Position -->
+  <rect x="14" y="44" width="248" height="202" rx="8" fill="url(#sq_panel)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <rect x="24" y="54" width="115" height="20" rx="4" fill="rgba(0, 210, 255, 0.15)"/>
+  <text x="29" y="68" fill="#00d2ff" font-size="10" font-weight="800" letter-spacing="0.8">STEP 1: START POSITION</text>
+
+  <!-- Start Position Figure (Standing Tall) -->
+  <g transform="translate(138, 70)">
+    <!-- Head -->
+    <circle cx="0" cy="18" r="9" fill="#00d2ff" filter="url(#sq_glow)"/>
+    <!-- Torso -->
+    <line x1="0" y1="27" x2="0" y2="75" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Arms crossed at chest -->
+    <path d="M-14,40 L0,48 L14,40" fill="none" stroke="#60efff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Hips to Knees (Legs straight ~180 deg) -->
+    <line x1="0" y1="75" x2="-10" y2="115" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="0" y1="75" x2="10" y2="115" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <!-- Knees to Feet -->
+    <line x1="-10" y1="115" x2="-12" y2="152" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="10" y1="115" x2="12" y2="152" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <!-- Feet -->
+    <line x1="-12" y1="152" x2="-22" y2="152" stroke="#00ff87" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="12" y1="152" x2="22" y2="152" stroke="#00ff87" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Ground line -->
+    <line x1="-35" y1="154" x2="35" y2="154" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <!-- Angle annotation badge -->
+    <rect x="-42" y="105" width="28" height="15" rx="3" fill="#111827" stroke="#00d2ff" stroke-width="0.8"/>
+    <text x="-28" y="116" fill="#00d2ff" font-size="8.5" font-weight="700" text-anchor="middle">180°</text>
+  </g>
+  <!-- Left text cues -->
+  <text x="24" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Feet shoulder-width</text>
+  <text x="24" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Toes flared 15-30°</text>
+  <text x="24" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• Chest tall & proud</text>
+  <text x="24" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Core braced tight</text>
+  <rect x="24" y="214" width="228" height="22" rx="4" fill="rgba(255,255,255,0.04)"/>
+  <text x="138" y="229" fill="#8b949e" font-size="9.5" text-anchor="middle">Setup: Standing erect lockout</text>
+
+  <!-- Right Panel: Execution (Squat Depth) -->
+  <rect x="278" y="44" width="248" height="202" rx="8" fill="url(#sq_panel)" stroke="rgba(0,255,135,0.3)" stroke-width="1"/>
+  <rect x="288" y="54" width="125" height="20" rx="4" fill="rgba(0, 255, 135, 0.15)"/>
+  <text x="293" y="68" fill="#00ff87" font-size="10" font-weight="800" letter-spacing="0.8">STEP 2: FULL DEPTH</text>
+
+  <!-- Execution Figure (Deep Parallel Squat) -->
+  <g transform="translate(416, 105)">
+    <!-- Head -->
+    <circle cx="10" cy="-6" r="9" fill="#00ff87" filter="url(#sq_glow)"/>
+    <!-- Torso angled slightly forward -->
+    <line x1="10" y1="3" x2="-14" y2="40" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Arms forward for counter-balance -->
+    <line x1="0" y1="16" x2="32" y2="16" stroke="#60efff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Thigh parallel/sub-parallel (Hips to Knee) -->
+    <line x1="-14" y1="40" x2="22" y2="44" stroke="#00ff87" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Shin (Knee to Ankle) -->
+    <line x1="22" y1="44" x2="15" y2="117" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <!-- Foot -->
+    <line x1="15" y1="117" x2="35" y2="117" stroke="#00ff87" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Down Arrow indicating depth -->
+    <path d="M-22,15 L-22,35 M-26,29 L-22,36 L-18,29" fill="none" stroke="#ff9d2b" stroke-width="2"/>
+    <!-- Angle Callout Arc & Badge -->
+    <path d="M7,42 A18,18 0 0,0 20,62" fill="none" stroke="#00ff87" stroke-width="2" stroke-dasharray="2,2"/>
+    <rect x="28" y="44" width="36" height="16" rx="3" fill="#111827" stroke="#00ff87" stroke-width="1"/>
+    <text x="46" y="56" fill="#00ff87" font-size="9" font-weight="800" text-anchor="middle">&lt; 90°</text>
+    <!-- Ground line -->
+    <line x1="-35" y1="119" x2="50" y2="119" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+  </g>
+  <!-- Right text cues -->
+  <text x="288" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Push hips back & down</text>
+  <text x="288" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Thighs break parallel (&lt;90°)</text>
+  <text x="288" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• Heels glued to floor</text>
+  <text x="288" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Drive through mid-foot</text>
+  <rect x="288" y="214" width="228" height="22" rx="4" fill="rgba(0,255,135,0.08)"/>
+  <text x="402" y="229" fill="#00ff87" font-size="9.5" font-weight="700" text-anchor="middle">Execution: Valid rep triggered on ascent</text>
+</svg>

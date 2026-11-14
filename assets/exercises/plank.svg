@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 260" width="100%" height="auto" style="border-radius: 12px; background: #0e1420; border: 1px solid rgba(0, 255, 135, 0.25); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="pl_accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d2ff" />
+      <stop offset="100%" stop-color="#00ff87" />
+    </linearGradient>
+    <linearGradient id="pl_panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151e2e" />
+      <stop offset="100%" stop-color="#101724" />
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="540" height="34" fill="#131b29"/>
+  <rect x="0" y="0" width="540" height="2" fill="url(#pl_accent)"/>
+  <text x="16" y="22" fill="#ffffff" font-size="12.5" font-weight="800" letter-spacing="1">🛡️ PLANK TECHNIQUE GUIDE</text>
+  <text x="524" y="22" fill="#00ff87" font-size="11" font-weight="700" text-anchor="end">AI TARGET: 160° - 180° SPINE</text>
+
+  <!-- Left: Setup -->
+  <rect x="14" y="44" width="248" height="202" rx="8" fill="url(#pl_panel)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <rect x="24" y="54" width="115" height="20" rx="4" fill="rgba(0, 210, 255, 0.15)"/>
+  <text x="29" y="68" fill="#00d2ff" font-size="10" font-weight="800" letter-spacing="0.8">STEP 1: FOREARM SETUP</text>
+
+  <g transform="translate(130, 120)">
+    <circle cx="55" cy="20" r="8" fill="#00d2ff"/>
+    <line x1="48" y1="26" x2="-55" y2="46" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Forearm vertical stack -->
+    <line x1="42" y1="28" x2="42" y2="60" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="42" y1="60" x2="58" y2="60" stroke="#00d2ff" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- Feet -->
+    <line x1="-55" y1="46" x2="-60" y2="60" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="-70" y1="62" x2="65" y2="62" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+  </g>
+  <text x="24" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Forearms on ground</text>
+  <text x="24" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Elbows under shoulders</text>
+  <text x="24" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• Feet together, toes tucked</text>
+  <text x="24" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Deep breath before lift</text>
+  <rect x="24" y="214" width="228" height="22" rx="4" fill="rgba(255,255,255,0.04)"/>
+  <text x="138" y="229" fill="#8b949e" font-size="9.5" text-anchor="middle">Setup: Stable base of support</text>
+
+  <!-- Right: Static Hold Line -->
+  <rect x="278" y="44" width="248" height="202" rx="8" fill="url(#pl_panel)" stroke="rgba(0,255,135,0.3)" stroke-width="1"/>
+  <rect x="288" y="54" width="135" height="20" rx="4" fill="rgba(0, 255, 135, 0.15)"/>
+  <text x="293" y="68" fill="#00ff87" font-size="10" font-weight="800" letter-spacing="0.8">STEP 2: LOCKED PLANK LINE</text>
+
+  <g transform="translate(395, 120)">
+    <circle cx="55" cy="18" r="8" fill="#00ff87"/>
+    <!-- 180° straight line from neck to heels -->
+    <line x1="48" y1="24" x2="-58" y2="38" stroke="#00ff87" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="42" y1="26" x2="42" y2="60" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+    <line x1="42" y1="60" x2="58" y2="60" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="-58" y1="38" x2="-62" y2="60" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="-70" y1="62" x2="65" y2="62" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <!-- Alignment Indicator Bar -->
+    <line x1="-58" y1="30" x2="48" y2="16" stroke="#00ff87" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <rect x="-15" y="10" width="46" height="15" rx="3" fill="#111827" stroke="#00ff87" stroke-width="1"/>
+    <text x="8" y="21" fill="#00ff87" font-size="8" font-weight="800" text-anchor="middle">170°-180°</text>
+  </g>
+  <text x="288" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Pull belly button to spine</text>
+  <text x="288" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Squeeze glutes tight</text>
+  <text x="288" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• No hip sagging or piking</text>
+  <text x="288" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Continuous controlled breathing</text>
+  <rect x="288" y="214" width="228" height="22" rx="4" fill="rgba(0,255,135,0.08)"/>
+  <text x="402" y="229" fill="#00ff87" font-size="9.5" font-weight="700" text-anchor="middle">Execution: Hold steady line for timer</text>
+</svg>

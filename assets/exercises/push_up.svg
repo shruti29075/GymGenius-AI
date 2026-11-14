@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 260" width="100%" height="auto" style="border-radius: 12px; background: #0e1420; border: 1px solid rgba(0, 255, 135, 0.25); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="pu_accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00d2ff" />
+      <stop offset="100%" stop-color="#00ff87" />
+    </linearGradient>
+    <linearGradient id="pu_panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151e2e" />
+      <stop offset="100%" stop-color="#101724" />
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="540" height="34" fill="#131b29"/>
+  <rect x="0" y="0" width="540" height="2" fill="url(#pu_accent)"/>
+  <text x="16" y="22" fill="#ffffff" font-size="12.5" font-weight="800" letter-spacing="1">💪 PUSH UP TECHNIQUE GUIDE</text>
+  <text x="524" y="22" fill="#00ff87" font-size="11" font-weight="700" text-anchor="end">AI TARGET: &lt; 90° ELBOW BEND</text>
+
+  <!-- Left: High Plank Start -->
+  <rect x="14" y="44" width="248" height="202" rx="8" fill="url(#pu_panel)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <rect x="24" y="54" width="125" height="20" rx="4" fill="rgba(0, 210, 255, 0.15)"/>
+  <text x="29" y="68" fill="#00d2ff" font-size="10" font-weight="800" letter-spacing="0.8">STEP 1: HIGH PLANK</text>
+
+  <!-- Start Figure (Plank Top) -->
+  <g transform="translate(130, 110)">
+    <!-- Head -->
+    <circle cx="58" cy="18" r="8" fill="#00d2ff"/>
+    <!-- Straight spine from shoulder to ankles -->
+    <line x1="50" y1="24" x2="-60" y2="48" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Straight Arm to floor (Lockout >160°) -->
+    <line x1="45" y1="26" x2="45" y2="70" stroke="#00d2ff" stroke-width="4" stroke-linecap="round"/>
+    <!-- Hands on floor -->
+    <line x1="40" y1="70" x2="52" y2="70" stroke="#00d2ff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Feet on floor -->
+    <line x1="-60" y1="48" x2="-64" y2="70" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="-66" y1="70" x2="-56" y2="70" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Ground -->
+    <line x1="-75" y1="72" x2="65" y2="72" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <!-- Angle badge -->
+    <rect x="30" y="38" width="32" height="15" rx="3" fill="#111827" stroke="#00d2ff" stroke-width="0.8"/>
+    <text x="46" y="49" fill="#00d2ff" font-size="8" font-weight="700" text-anchor="middle">&gt;160°</text>
+  </g>
+  <text x="24" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Hands outside shoulders</text>
+  <text x="24" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Rigid straight spine</text>
+  <text x="24" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• Core & glutes engaged</text>
+  <text x="24" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Eyes looking at floor</text>
+  <rect x="24" y="214" width="228" height="22" rx="4" fill="rgba(255,255,255,0.04)"/>
+  <text x="138" y="229" fill="#8b949e" font-size="9.5" text-anchor="middle">Setup: Arms extended, neutral neck</text>
+
+  <!-- Right: Bottom Chest to Floor -->
+  <rect x="278" y="44" width="248" height="202" rx="8" fill="url(#pu_panel)" stroke="rgba(0,255,135,0.3)" stroke-width="1"/>
+  <rect x="288" y="54" width="135" height="20" rx="4" fill="rgba(0, 255, 135, 0.15)"/>
+  <text x="293" y="68" fill="#00ff87" font-size="10" font-weight="800" letter-spacing="0.8">STEP 2: BOTTOM DEPTH</text>
+
+  <!-- Execution Figure (Chest lowered, elbow bent 90°) -->
+  <g transform="translate(395, 132)">
+    <!-- Head near floor -->
+    <circle cx="58" cy="22" r="8" fill="#00ff87"/>
+    <!-- Straight spine -->
+    <line x1="50" y1="28" x2="-60" y2="40" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <!-- Upper arm & bent elbow (~90°) -->
+    <line x1="45" y1="28" x2="40" y2="8" stroke="#00ff87" stroke-width="4" stroke-linecap="round"/>
+    <!-- Forearm to floor -->
+    <line x1="40" y1="8" x2="45" y2="48" stroke="#00ff87" stroke-width="4" stroke-linecap="round"/>
+    <!-- Hand -->
+    <line x1="40" y1="48" x2="52" y2="48" stroke="#00ff87" stroke-width="3" stroke-linecap="round"/>
+    <!-- Foot -->
+    <line x1="-60" y1="40" x2="-64" y2="48" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="-66" y1="48" x2="-56" y2="48" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <!-- Ground -->
+    <line x1="-75" y1="50" x2="65" y2="50" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <!-- Angle badge -->
+    <rect x="26" y="-6" width="30" height="15" rx="3" fill="#111827" stroke="#00ff87" stroke-width="1"/>
+    <text x="41" y="5" fill="#00ff87" font-size="8.5" font-weight="800" text-anchor="middle">&lt;90°</text>
+  </g>
+  <text x="288" y="96" fill="#e6edf3" font-size="10.5" font-weight="600">• Lower chest near floor</text>
+  <text x="288" y="114" fill="#e6edf3" font-size="10.5" font-weight="600">• Elbows tucked at 45°</text>
+  <text x="288" y="132" fill="#e6edf3" font-size="10.5" font-weight="600">• No sagging in lower back</text>
+  <text x="288" y="150" fill="#e6edf3" font-size="10.5" font-weight="600">• Press hard to full lockout</text>
+  <rect x="288" y="214" width="228" height="22" rx="4" fill="rgba(0,255,135,0.08)"/>
+  <text x="402" y="229" fill="#00ff87" font-size="9.5" font-weight="700" text-anchor="middle">Execution: Rep counts upon returning up</text>
+</svg>
