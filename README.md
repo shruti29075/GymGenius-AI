@@ -92,3 +92,5 @@ GymGenius AI currently tracks and provides real-time feedback on 6 core exercise
 ## 🔮 Future Enhancements
 - **Wearable Integration**: Sync with smartwatches (Apple Watch, Garmin, etc.) for heart rate and calorie tracking.
 - **Dynamic Workout Plans**: AI-generated multi-week routines tailored to your specific goals and progress.
+
+## Link - https://drive.google.com/file/d/1QmOaq_G3-MvrkrKqAbV43m3s1o8zNCK9/view?usp=sharing
